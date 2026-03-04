@@ -17,11 +17,19 @@ public class Item {
 
     @Column(nullable = false)
     private String name;
-
+    @Column(unique = true)
+    private String itemCode;
     private Integer quantity;
     private Double price;
+    private String type;
 
     public Item(){}
+    public Item( User user, String name, Integer quantity, Double price) {
+        this.user = user;
+        this.name = name;
+        this.quantity = quantity;
+        this.price = price;
+    }
     public Item(Integer id, User user, String name, Integer quantity, Double price) {
         this.id = id;
         this.user = user;
@@ -29,6 +37,7 @@ public class Item {
         this.quantity = quantity;
         this.price = price;
     }
+
 
     public Integer getId() {
         return id;
@@ -68,5 +77,21 @@ public class Item {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getItemCode() {
+        return itemCode;
+    }
+
+    public void setItemCode(String itemCode) {
+        this.itemCode = itemCode;
     }
 }

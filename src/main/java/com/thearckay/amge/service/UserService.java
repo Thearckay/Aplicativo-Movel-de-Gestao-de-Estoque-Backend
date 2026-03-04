@@ -21,55 +21,56 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public ApiResponse<?> registerUser(UserRegisterRequest registerInformations){
-        try{
-            // verificar de já não há esse cadastro
+    public ApiResponse<Integer> registerUser(UserRegisterRequest registerInformations) {
+        try {
             User userFromDataBase = userRepository.findUserByEmail(registerInformations.email());
-            if (userFromDataBase != null) throw new UserRegisterException("Usuário já existente", HttpStatus.CONFLICT.value());
+            if (userFromDataBase != null) {
+                throw new UserRegisterException("Usuário já existente", HttpStatus.CONFLICT.value());
+            }
 
-            // transforma o DTO em um User para inserir no banco de dados
             User newUser = registerInformations.build();
-            if (newUser == null){
+            if (newUser == null) {
                 throw new UserRegisterException("Dados inválidos", HttpStatus.BAD_REQUEST.value());
             }
 
-            userRepository.save(newUser);
+            User savedUser = userRepository.save(newUser);
 
             return new ApiResponse<>(
                     HttpStatus.OK.value(),
                     "Registrado com sucesso!",
-                    null
+                    savedUser.getId()
             );
 
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+        } catch (UserRegisterException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro interno ao registrar usuário: " + e.getMessage());
         }
     }
 
-    public ApiResponse<?> loginUser(UserLoginRequest loginInformations){
+    public ApiResponse<Integer> loginUser(UserLoginRequest loginInformations) {
         try {
             String loginEmail = loginInformations.email();
             User userFromDataBase = userRepository.findUserByEmail(loginEmail);
 
-            if (userFromDataBase == null){
-                throw new UserLoginException("Usuário não existe.", HttpStatus.BAD_REQUEST.value());
+            if (userFromDataBase == null) {
+                throw new UserLoginException("Usuário não cadastrado.", HttpStatus.NOT_FOUND.value());
             }
 
-            if (!loginInformations.password().equals(userFromDataBase.getPassword())){
-                throw new UserLoginException("Senha inválida.", HttpStatus.BAD_REQUEST.value());
+            if (!loginInformations.password().equals(userFromDataBase.getPassword())) {
+                throw new UserLoginException("E-mail ou senha incorretos.", HttpStatus.UNAUTHORIZED.value());
             }
-
-            String name = userFromDataBase.getName();
-            List<Item> itemList = userFromDataBase.getItemList();
 
             return new ApiResponse<>(
                     HttpStatus.OK.value(),
-                    "Logado com sucesso!",
-                    itemList
+                    "Login realizado com sucesso!",
+                    userFromDataBase.getId()
             );
 
         } catch (UserLoginException e) {
-            throw new UserLoginException(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro inesperado no servidor: " + e.getMessage());
         }
     }
 }

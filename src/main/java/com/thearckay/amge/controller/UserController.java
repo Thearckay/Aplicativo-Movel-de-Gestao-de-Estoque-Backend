@@ -20,7 +20,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping()
+    @GetMapping("/test")
     public UserResponse getUserTest(){
         return new UserResponse("Kayck Arcanjo", List.of(new Item()));
     }
