@@ -48,6 +48,7 @@ public class UserService {
         }
     }
 
+    //todo - ao errar a senha dá erro interno do servidor
     public ApiResponse<Integer> loginUser(UserLoginRequest loginInformations) {
         try {
             String loginEmail = loginInformations.email();

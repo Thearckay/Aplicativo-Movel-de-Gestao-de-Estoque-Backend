@@ -57,4 +57,18 @@ public class ItemController {
                 estoque
         ));
     }
+
+    @PatchMapping("/stock")
+    public ResponseEntity<ApiResponse> updateItem( @RequestBody ItemRequest itemUpdated,
+                                                   @RequestParam String itemCode,
+                                                   @RequestParam Integer userId
+    ){
+        return itemService.updateItem(itemUpdated, itemCode, userId);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponse> deleteItem(@RequestParam String itemCode, @RequestParam Integer userId){
+        return itemService.deleteItem(itemCode, userId);
+    }
+
 }

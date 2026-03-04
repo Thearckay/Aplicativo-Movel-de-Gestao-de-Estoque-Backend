@@ -1,6 +1,7 @@
 package com.thearckay.amge.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.thearckay.amge.dto.request.ItemRequest;
 import jakarta.persistence.*;
 
 @Entity
@@ -38,6 +39,15 @@ public class Item {
         this.price = price;
     }
 
+    public Item(ItemRequest itemForUpdate, Integer itemId, User userLogged){
+        this.setUser(userLogged);
+        this.setId(itemId);
+        this.setName(itemForUpdate.name());
+        this.setItemCode(itemForUpdate.itemCode());
+        this.setQuantity(itemForUpdate.quantity());
+        this.setPrice(itemForUpdate.price());
+        this.setType(itemForUpdate.type());
+    }
 
     public Integer getId() {
         return id;

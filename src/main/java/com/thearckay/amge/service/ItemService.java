@@ -2,17 +2,22 @@ package com.thearckay.amge.service;
 
 import com.thearckay.amge.dto.request.ItemRequest;
 import com.thearckay.amge.dto.response.ActivityResponse;
+import com.thearckay.amge.dto.response.ApiResponse;
 import com.thearckay.amge.dto.response.DashboardResponse;
 import com.thearckay.amge.entity.Item;
 import com.thearckay.amge.entity.User;
+import com.thearckay.amge.exceptions.DeleteItemException;
 import com.thearckay.amge.exceptions.RegisterItemException;
+import com.thearckay.amge.exceptions.UpdateItemException;
 import com.thearckay.amge.repository.ItemRepository;
 import com.thearckay.amge.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ItemService {
@@ -75,4 +80,45 @@ public class ItemService {
         return items;
     }
 
+    public ResponseEntity<ApiResponse> updateItem(ItemRequest itemUpdated, String itemCode, Integer userId){
+        try {
+            Item itemOutdated = itemRepository.findByItemCode(itemCode);
+            Optional<User> userOptional = userRepository.findById(userId);
+
+            if (itemOutdated == null) throw new UpdateItemException("Código inválido", HttpStatus.BAD_REQUEST.value());
+            if (userOptional.isEmpty()) throw new UpdateItemException("Usuário inválido para atualização", HttpStatus.BAD_REQUEST.value());
+
+            User userFromDataBase = userOptional.get();
+            Item itemUpdatedToSave = new Item(itemUpdated, itemOutdated.getId(), userFromDataBase);
+
+            itemRepository.save(itemUpdatedToSave);
+
+            return ResponseEntity.ok(new ApiResponse(
+                    HttpStatus.OK.value(),
+                    "Item atulizado com Sucesso!",
+                    null
+            ));
+
+        } catch (UpdateItemException e) {
+            throw new UpdateItemException("Houve um erro ao tentar atualizar o item", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+
+    public ResponseEntity<ApiResponse> deleteItem(String itemCode, Integer userId) {
+        try {
+            Item itemToDelete = itemRepository.findByItemCodeAndUserId(itemCode, userId);
+            if (itemToDelete == null) throw new UpdateItemException("O código do item é inválido", HttpStatus.BAD_REQUEST.value());
+
+            itemRepository.delete(itemToDelete);
+
+            return ResponseEntity.ok(new ApiResponse(
+                    HttpStatus.OK.value(),
+                    "Deletado com sucesso!",
+                    null
+            ));
+
+        } catch (DeleteItemException e) {
+            throw new DeleteItemException("Houve um erro ao deletar o item", HttpStatus.BAD_REQUEST.value());
+        }
+    }
 }
