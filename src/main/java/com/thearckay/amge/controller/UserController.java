@@ -8,6 +8,7 @@ import com.thearckay.amge.dto.response.UserResponse;
 import com.thearckay.amge.entity.Item;
 import com.thearckay.amge.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,14 +16,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("users")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     @GetMapping("/test")
-    public UserResponse getUserTest(){
-        return new UserResponse("Kayck Arcanjo", List.of(new Item()));
+    public ResponseEntity<ApiResponse> getUserTest(){
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Get com sucesso!",
+                null
+        ));
     }
 
     @PostMapping("/register")
